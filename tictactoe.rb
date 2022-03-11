@@ -19,8 +19,18 @@ class Board
   end
 
   def update_board
+    board.each do |row|
+      row.each do |square|
+        if square['value'] != ''
+          print "[#{square['value']}]"
+        else
+          print "[#{square['id']}]"
+        end
+      end
+      print "\n"
+    end
   end
 end
 
 my_board = Board.new
-p my_board.board
+my_board.update_board
