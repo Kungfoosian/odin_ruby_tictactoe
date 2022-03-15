@@ -5,22 +5,41 @@ class Board
   attr_reader :board
 
   def initialize
-    @board = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]
+    # @board = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]
 
-    square_id = 0
+    # square_id = 0
 
-    @board.each do |row|
-      row.each do |square|
-        square['id'] = square_id
-        square['value'] = ''
-        square_id += 1
-      end
+    # @board.each do |row|
+    #   row.each do |square|
+    #     square[:id] = square_id
+    #     square[:value] = ''
+    #     square_id += 1
+    #   end
+    # end
+    @board = []
+
+    9.times do |square_index|
+      square =
+        { id: square_index,
+          value: '' }
+
+      @board.push(square)
     end
   end
 
   def update
-    board.each do |row|
-      row.each do |square|
+    # board.each do |row|
+    #   row.each do |square|
+    #     if !square['value'].empty?
+    #       print "[#{square['value']}]"
+    #     else
+    #       print "[#{square['id']}]"
+    #     end
+    #   end
+    #   print "\n"
+    # end
+    board.each do |square|
+      3.times do
         if !square['value'].empty?
           print "[#{square['value']}]"
         else
@@ -32,27 +51,47 @@ class Board
   end
 
   def register_input(player, square_choice)
-    unless square_empty?(square_choice)
+    # board.each do |row|
+    #   row.each do |square|
+    #     raise StandardError, "\tERROR: Select another square" unless
+    #       square[:id] == square_choice && square_empty?(square)
 
+    #     square[:value] = player.marker
+    #   end
+    # end
+    board.each do |square|
+      raise StandardError, "\tERROR: Select another square" unless
+        square[:id] == square_choice && square_empty?(square)
+
+      square[:value] = player.marker
+    end
+  end
+
+  def check_for_winner
+    win_patterns = [[0, 1, 2], [0, 4, 8], [0, 3, 6], [3, 4, 5], [6, 7, 8], [1, 4, 7], [2, 5, 8], [2, 4, 6]]
+
+    win_patterns.any? do |pattern|
+      pattern.all? do |square|
+        board
+      end
     end
   end
 
   private
 
-  def square_empty?(square_choice)
-    board.each do |row|
-      row.each do |square|
-        unless square[:id] == square_choice && (square.value?('X') || square.value?('O'))
-          true
-        else
-          false
-      end
+  def square_empty?(square)
+    if square.value?('X') || square.value?('O')
+      false
+    else
+      true
     end
   end
 end
 
 # Player
 class Player
+  attr_reader :marker
+
   def initialize(marker)
     @marker = marker
   end
@@ -89,14 +128,15 @@ class Game
     until @someone_won
       @board.update
 
-      player_choice = current_player.choose_square
-
-      # @board.is_square_empty?(player_choice)
-      @board.register_input(current_player, player_choice)
-
-      @someone_won = @board.check_for_winner
-
-      current_player = @player1 ? @player2 : @player1
+      begin
+        player_choice = current_player.choose_square
+        @board.register_input(current_player, player_choice)
+      rescue StandardError => e
+        puts e
+      else
+        @someone_won = @board.check_for_winner
+        current_player = @player1 ? @player2 : @player1
+      end
     end
   end
 end
