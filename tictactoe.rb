@@ -129,13 +129,10 @@ class Game
 
     nil
   end
-  # private_class_method :check_for_winner
 end
 
 player_x = Player.new('X')
 player_o = Player.new('O')
 game_board = Board.new
-# game_board.update
 game = Game.new(player_x, player_o, game_board)
-# require 'pry-byebug'; binding.pry
 game.play
