@@ -5,17 +5,6 @@ class Board
   attr_reader :board
 
   def initialize
-    # @board = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]]
-
-    # square_id = 0
-
-    # @board.each do |row|
-    #   row.each do |square|
-    #     square[:id] = square_id
-    #     square[:value] = ''
-    #     square_id += 1
-    #   end
-    # end
     @board = []
 
     9.times do |square_index|
@@ -28,51 +17,33 @@ class Board
   end
 
   def update
-    # board.each do |row|
-    #   row.each do |square|
-    #     if !square['value'].empty?
-    #       print "[#{square['value']}]"
-    #     else
-    #       print "[#{square['id']}]"
-    #     end
-    #   end
-    #   print "\n"
-    # end
+    elements_printed = 0
+
     board.each do |square|
-      3.times do
-        if !square['value'].empty?
-          print "[#{square['value']}]"
-        else
-          print "[#{square['id']}]"
-        end
+      if !square[:value].empty?
+        print "[#{square[:value]}]"
+
+      else
+        print "[#{square[:id]}]"
+
       end
-      print "\n"
+
+      elements_printed += 1
+
+      print "\n" if (elements_printed % 3).zero?
     end
   end
 
   def register_input(player, square_choice)
-    # board.each do |row|
-    #   row.each do |square|
-    #     raise StandardError, "\tERROR: Select another square" unless
-    #       square[:id] == square_choice && square_empty?(square)
+    board.each_with_index do |square, index|
+      if square[:id] == square_choice && square_empty?(square)
+        square[:value] = player.marker
 
-    #     square[:value] = player.marker
-    #   end
-    # end
-    board.each do |square|
-      raise StandardError, "\tERROR: Select another square" unless
-        square[:id] == square_choice && square_empty?(square)
+        return square_choice
 
-      square[:value] = player.marker
-    end
-  end
+      elsif index == board.length - 1
+        raise StandardError, "\tERROR: Select another square\n"
 
-  def check_for_winner
-    win_patterns = [[0, 1, 2], [0, 4, 8], [0, 3, 6], [3, 4, 5], [6, 7, 8], [1, 4, 7], [2, 5, 8], [2, 4, 6]]
-
-    win_patterns.any? do |pattern|
-      pattern.all? do |square|
-        board
       end
     end
   end
@@ -90,15 +61,15 @@ end
 
 # Player
 class Player
-  attr_reader :marker
+  attr_reader :marker, :marked_squares
 
   def initialize(marker)
     @marker = marker
+    @marked_squares = []
   end
 
-  private
-
   def choose_square
+    puts "\n\t***Player #{marker} turn.***"
     print 'Please select a number from board:'
     begin
       choice = Integer(gets.chomp)
@@ -110,33 +81,60 @@ class Player
       choice
     end
   end
+
+  def update_choice(square)
+    @marked_squares.push(square)
+  end
 end
 
 # Game
 class Game
   attr_accessor :current_player
 
+  WIN_PATTERNS = [[0, 1, 2], [0, 4, 8], [0, 3, 6], [3, 4, 5], [6, 7, 8], [1, 4, 7], [2, 5, 8], [2, 4, 6]].freeze
+
   def initialize(player1, player2, board)
     @player1 = player1
     @player2 = player2
     @board = board
-    @someone_won = false
+    @winner = nil
     @current_player = @player1
   end
 
   def play
-    until @someone_won
+    while @winner.nil?
       @board.update
 
       begin
         player_choice = current_player.choose_square
-        @board.register_input(current_player, player_choice)
+        marked_square = @board.register_input(current_player, player_choice)
       rescue StandardError => e
         puts e
       else
-        @someone_won = @board.check_for_winner
-        current_player = @player1 ? @player2 : @player1
+        @current_player.update_choice(marked_square)
+        @winner = Game.check_for_winner(current_player)
+        @current_player = @current_player == @player1 ? @player2 : @player1
+        # Game.switch_player
       end
     end
+
+    puts "#{@winner} won!"
   end
+
+  def self.check_for_winner(player)
+    player.marker if WIN_PATTERNS.any? do |pattern|
+      (pattern & player.marked_squares).sort == pattern.sort
+    end
+
+    nil
+  end
+  # private_class_method :check_for_winner
 end
+
+player_x = Player.new('X')
+player_o = Player.new('O')
+game_board = Board.new
+# game_board.update
+game = Game.new(player_x, player_o, game_board)
+# require 'pry-byebug'; binding.pry
+game.play
