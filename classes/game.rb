@@ -11,26 +11,32 @@ class Game
     @player2 = player2
     @board = board
     @winner = nil
-    @current_player = @player1
+    @current_player = [@player1, @player2].sample
   end
 
   def play
-    while @winner.nil?
-      @board.update
-
+    while @winner.nil? && !@board.squares_left.zero?
       begin
         player_choice = current_player.choose_square
+
         marked_square = @board.register_input(current_player, player_choice)
+
       rescue StandardError => e
         puts e
-      else
-        @current_player.update_choice(marked_square)
-        @winner = Game.check_for_winner(current_player)
-        @current_player = @current_player == @player1 ? @player2 : @player1
       end
+
+      @current_player.update_choice(marked_square)
+
+      @board.update
+
+      @winner = Game.check_for_winner(current_player)
+
+      @current_player = @current_player == @player1 ? @player2 : @player1
     end
 
-    puts "#{@winner.marker} won!"
+    @winner = 'No one' if @board.squares_left.zero?
+
+    puts "\n\n\t**** #{@winner} won! ****\n\n"
   end
 
   def self.check_for_winner(player)
@@ -38,7 +44,7 @@ class Game
       (pattern & player.marked_squares).sort == pattern.sort
     end
 
-    return player if win_condition_met
+    return player.marker if win_condition_met 
 
     nil
   end

@@ -8,4 +8,5 @@ player_x = Player.new('X')
 player_o = Player.new('O')
 game_board = GameBoard.new
 game = Game.new(player_x, player_o, game_board)
+game_board.update
 game.play

@@ -2,10 +2,11 @@
 
 # Creates game board
 class GameBoard
-  attr_reader :board
+  attr_reader :board, :squares_left
 
   def initialize
     @board = []
+    @squares_left = 9
 
     9.times do |square_index|
       square =
@@ -18,7 +19,7 @@ class GameBoard
 
   def update
     elements_printed = 0
-    print "\n\t"
+    print "\n\n\t"
     board.each do |square|
       if !square[:value].empty?
         print "[ #{square[:value]} ]"
@@ -38,6 +39,7 @@ class GameBoard
     board.each_with_index do |square, index|
       if square[:id] == square_choice && square_empty?(square)
         square[:value] = player.marker
+        @squares_left -= 1
 
         return square_choice
 
