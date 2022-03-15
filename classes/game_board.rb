@@ -17,7 +17,7 @@ class GameBoard
     end
   end
 
-  def update
+  def print_board
     elements_printed = 0
     print "\n\n\t"
     board.each do |square|
@@ -36,6 +36,12 @@ class GameBoard
   end
 
   def register_input(player, square_choice)
+    update(player, square_choice)
+  end
+
+  private
+
+  def update(player, square_choice)
     board.each_with_index do |square, index|
       if square[:id] == square_choice && square_empty?(square)
         square[:value] = player.marker
@@ -49,8 +55,6 @@ class GameBoard
       end
     end
   end
-
-  private
 
   def square_empty?(square)
     if square.value?('X') || square.value?('O')

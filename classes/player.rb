@@ -23,7 +23,7 @@ class Player
     end
   end
 
-  def update_choice(square)
+  def update(square)
     @marked_squares.push(square)
   end
 end
