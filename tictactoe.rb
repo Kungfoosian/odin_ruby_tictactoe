@@ -114,17 +114,18 @@ class Game
         @current_player.update_choice(marked_square)
         @winner = Game.check_for_winner(current_player)
         @current_player = @current_player == @player1 ? @player2 : @player1
-        # Game.switch_player
       end
     end
 
-    puts "#{@winner} won!"
+    puts "#{@winner.marker} won!"
   end
 
   def self.check_for_winner(player)
-    player.marker if WIN_PATTERNS.any? do |pattern|
+    win_condition_met = WIN_PATTERNS.any? do |pattern|
       (pattern & player.marked_squares).sort == pattern.sort
     end
+
+    return player if win_condition_met
 
     nil
   end
