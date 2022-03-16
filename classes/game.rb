@@ -21,7 +21,7 @@ class Game
       begin
         player_choice = @current_player.choose_square
 
-        marked_square = @board.register_input(@current_player, player_choice)
+        marked_square = @board.update(@current_player, player_choice)
       rescue StandardError => e
         puts e
       else
